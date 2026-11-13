@@ -142,6 +142,10 @@
   .chapter li b { color: var(--fg); font-weight: 600; }
   .shot { border-radius: 10px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
   .shot img { width: 118.3%; max-width: none; margin-left: -18.3%; }
+  .shot { cursor: zoom-in; }
+  .zoom { position: fixed; inset: 0; z-index: 100; background: rgba(10, 15, 18, .9); overflow: auto; padding: 32px 16px; display: flex; cursor: zoom-out; }
+  .zoom .shot { width: min(1400px, 100%); margin: auto; max-height: none; cursor: zoom-out; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+  .zoom-lock { overflow: hidden; }
   .note { font-size: 13px; color: var(--muted); margin-top: 10px; line-height: 1.55; }
   .next { margin-top: 14px; font-size: 14.5px; color: var(--sub); }
   .next b { color: var(--heat); font-weight: 600; margin-right: 8px; }
@@ -596,6 +600,32 @@
   } else {
     setTimeout(() => hero.gather(false), 0);
   }
+})();
+</script>
+<script>
+// 단계별 허브 화면: 누르면 크게 보고, 다시 누르거나 Esc를 누르면 닫는다.
+(() => {
+  let box = null;
+  const close = () => { if (!box) return; box.remove(); box = null; document.documentElement.classList.remove("zoom-lock"); };
+  document.addEventListener("click", (e) => {
+    if (box) { close(); return; }
+    const shot = e.target.closest(".shot");
+    if (!shot || document.body.classList.contains("record")) return;
+    box = document.createElement("div");
+    box.className = "zoom";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", "화면 크게 보기");
+    box.appendChild(shot.cloneNode(true));
+    document.body.appendChild(box);
+    document.documentElement.classList.add("zoom-lock");
+  });
+  // 크게 본 동안에는 장 넘김(휠·방향키)이 뒤에서 돌지 않게 막는다.
+  document.addEventListener("wheel", (e) => { if (box) e.stopPropagation(); }, { capture: true, passive: true });
+  document.addEventListener("keydown", (e) => {
+    if (!box) return;
+    e.stopPropagation();
+    if (e.key === "Escape") close();
+  }, true);
 })();
 </script>
 </body>
