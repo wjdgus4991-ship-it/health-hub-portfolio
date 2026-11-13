@@ -621,9 +621,10 @@
     // 화면 한 장 안에 그림 전체가 들어오게: 가로·세로 중 먼저 닿는 쪽에 맞춘다.
     const img = copy.querySelector("img");
     const fitSize = () => {
-      if (!img.naturalWidth) return;
+      // 아직 안 읽힌 그림은 허브 캡처 크기(3200×2000)로 먼저 맞추고, 읽히면 다시 맞춘다.
+      const nw = img.naturalWidth || 3200, nh = img.naturalHeight || 2000;
       const crop = 1.183;   // .shot img는 왼쪽 메뉴를 가리려고 118.3%로 키워 둠
-      const ratio = img.naturalWidth / crop / img.naturalHeight;
+      const ratio = nw / crop / nh;
       const w = Math.min(1400, innerWidth - 32, (innerHeight - 48) * ratio);
       copy.style.width = Math.floor(w) + "px";
     };
